@@ -35,7 +35,7 @@ ls(char *path)
     return;
   }
 
-  if(fstat(fd, &st) < 0){
+  if(fstat(fd, &st) < 0){ // 从文件描述符所引用的inode中检索信息。它填充一个stat类型的结构体
     fprintf(2, "ls: cannot stat %s\n", path);
     close(fd);
     return;
