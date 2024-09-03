@@ -77,8 +77,24 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
+  if(which_dev == 2){
+    // 获取当前的时钟数
+    int xticks;
+    acquire(&tickslock);
+    xticks = ticks;
+    release(&tickslock);
+    if(xticks - p->last_tick_time >= p->alarm_interval && p->alarm_interval != 0 && p->alarm_handle != 0 && p->is_alarming == 0){
+      // 设置为正处于报警程序
+      p->is_alarming = 1;
+      // 备份trapframe
+      memmove(p->trapframe_copy, p->trapframe, sizeof(struct trapframe));
+      // 调用处理函数
+      p->trapframe->epc = (uint64)p->alarm_handle;
+      // 更新上次的时钟
+      p->last_tick_time = xticks;
+    }
     yield();
+  }
 
   usertrapret();
 }
